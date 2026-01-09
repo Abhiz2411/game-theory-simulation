@@ -11,16 +11,19 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">
+        <div className="mb-12 relative">
+          <div className="absolute top-0 right-0">
+            <ThemeToggle />
+          </div>
+          <div className="text-center max-w-3xl mx-auto">
+            <div className="mb-4 text-6xl">🎭⚖️</div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
               Iterated Prisoner&apos;s Dilemma
             </h1>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-lg md:text-xl">
               Explore game theory through interactive simulations and tournaments
             </p>
           </div>
-          <ThemeToggle />
         </div>
 
         <Tabs defaultValue="head-to-head" className="w-full">
