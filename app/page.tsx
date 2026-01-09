@@ -4,19 +4,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { HeadToHead } from '@/components/game/head-to-head';
 import { Tournament } from '@/components/game/tournament';
 import { Evolution } from '@/components/game/evolution';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Swords, Trophy, TrendingUp } from 'lucide-react';
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">
-            Iterated Prisoner&apos;s Dilemma
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Explore game theory through interactive simulations and tournaments
-          </p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">
+              Iterated Prisoner&apos;s Dilemma
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Explore game theory through interactive simulations and tournaments
+            </p>
+          </div>
+          <ThemeToggle />
         </div>
 
         <Tabs defaultValue="head-to-head" className="w-full">

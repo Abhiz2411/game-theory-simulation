@@ -24,6 +24,7 @@ export function Evolution() {
   const [history, setHistory] = useState<GenerationData[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(500); // ms per generation
+  const [maxGenerations, setMaxGenerations] = useState(100); // Recommended limit
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const initialize = () => {
@@ -35,11 +36,24 @@ export function Evolution() {
 
   const runSingleGeneration = () => {
     if (!simulation) return;
+    const currentGen = simulation.getCurrentGeneration();
+
+    // Auto-stop at generation limit
+    if (currentGen >= maxGenerations) {
+      setIsRunning(false);
+      return;
+    }
+
     simulation.runGeneration();
     setHistory([...simulation.getHistory()]);
   };
 
   const toggleRunning = () => {
+    const currentGen = simulation?.getCurrentGeneration() || 0;
+    if (currentGen >= maxGenerations && !isRunning) {
+      // Don't start if already at limit
+      return;
+    }
     setIsRunning(!isRunning);
   };
 
@@ -136,21 +150,50 @@ export function Evolution() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Speed: {speed}ms per generation
-            </label>
-            <input
-              type="range"
-              min="100"
-              max="2000"
-              step="100"
-              value={speed}
-              onChange={(e) => setSpeed(Number(e.target.value))}
-              className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
-              disabled={isRunning}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Speed: {speed}ms per generation
+              </label>
+              <input
+                type="range"
+                min="100"
+                max="2000"
+                step="100"
+                value={speed}
+                onChange={(e) => setSpeed(Number(e.target.value))}
+                className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                disabled={isRunning}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Max Generations: {maxGenerations}
+                <span className="text-muted-foreground text-xs ml-2">
+                  (Recommended: 50-100)
+                </span>
+              </label>
+              <input
+                type="range"
+                min="10"
+                max="200"
+                step="10"
+                value={maxGenerations}
+                onChange={(e) => setMaxGenerations(Number(e.target.value))}
+                className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                disabled={isRunning}
+              />
+            </div>
           </div>
+
+          {currentGeneration >= maxGenerations && (
+            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-sm">
+              <p className="text-amber-600 dark:text-amber-400 font-medium">
+                Generation limit reached ({maxGenerations}). Reset to continue or adjust the limit.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -164,13 +207,26 @@ export function Evolution() {
         <CardContent>
           <ResponsiveContainer width="100%" height={400}>
             <AreaChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis
                 dataKey="generation"
                 label={{ value: 'Generation', position: 'insideBottom', offset: -5 }}
+                className="text-muted-foreground"
+                stroke="currentColor"
               />
-              <YAxis label={{ value: 'Population', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
+              <YAxis
+                label={{ value: 'Population', angle: -90, position: 'insideLeft' }}
+                className="text-muted-foreground"
+                stroke="currentColor"
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '6px',
+                  color: 'hsl(var(--foreground))',
+                }}
+              />
               <Legend />
               {ALL_STRATEGIES.map((StrategyClass) => {
                 const strategyName = new StrategyClass().name;
@@ -255,6 +311,17 @@ export function Evolution() {
               &quot;Always Defect&quot; rises early by exploiting cooperators, but crashes when cooperators
               are eliminated. &quot;Tit For Tat&quot; and similar reciprocal strategies eventually dominate
               as they cooperate with each other while protecting against defectors.
+            </p>
+          </div>
+          <div className="pt-4 border-t">
+            <p className="font-medium text-foreground">Recommended Generations:</p>
+            <ul className="space-y-1 mt-2">
+              <li>• <strong>50 generations:</strong> Quick overview of initial dynamics</li>
+              <li>• <strong>100 generations:</strong> Ideal for observing full evolutionary patterns</li>
+              <li>• <strong>150+ generations:</strong> Extended analysis for stable equilibrium</li>
+            </ul>
+            <p className="mt-2 text-xs">
+              Most meaningful insights occur within the first 100 generations as strategies reach equilibrium.
             </p>
           </div>
         </CardContent>
